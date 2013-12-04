@@ -2,14 +2,15 @@ SparqlCrawlServer
 =================
 
 Version: 1.0
-Author: netEstate GmbH, http://www.netestate.de/, info@netestate.de
+Author: netEstate GmbH, http://www.netestate.de/, brunni@netestate.de
 License: Apache License version 2 <http://www.apache.org/licenses/>
 
 SparqlCrawlServer is a java web application that crawls a list of RDF-documents
-and executes a SPARQL-request on the resulting graphs. Already crawled documents
-are cached in memory and on disk.
+and executes a SPARQL-request on the resulting graphs. Every document gets 
+its own named graph with the final document URL as graph name. Already 
+crawled documents are cached in memory and on disk.
 
-HTTP POST request parameters:
+HTTP POST request parameters (UTF-8 encoded):
 
   query: The SPARQL query.
   graphs: A comma separated list of graph urls in <>:
