@@ -10,6 +10,8 @@ and executes a SPARQL-request on the resulting graphs. Every document gets
 its own named graph with the final document URL as graph name. Already 
 crawled documents are cached in memory and on disk.
 
+The crawler supports RDF/XML, RDFa, N3 and Turtle.
+
 HTTP POST request parameters (UTF-8 encoded):
 
   query: The SPARQL query.
