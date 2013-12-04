@@ -10,7 +10,8 @@ and executes a SPARQL-request on the resulting graphs. Every document gets
 its own named graph with the final document URL as graph name. Already 
 crawled documents are cached in memory and on disk.
 
-The crawler supports RDF/XML, RDFa, N3 and Turtle.
+The crawler supports RDF/XML, RDFa, N3 and Turtle and will open a maximum 
+of one HTTP connection per server IP. It respects the /robots.txt.
 
 The context-path of the servlet is /sparqlcrawl (so, normally the
 endpoint URL is http://<your-server>/SparqlCrawlServer/sparqlcrawl).
