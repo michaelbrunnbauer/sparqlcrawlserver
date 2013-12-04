@@ -1,0 +1,57 @@
+SparqlCrawlServer
+=================
+
+Version: 1.0
+Author: netEstate GmbH, http://www.netestate.de/, info@netestate.de
+License: Apache License version 2 <http://www.apache.org/licenses/>
+
+SparqlCrawlServer is a java web application that crawls a list of RDF-documents
+and executes a SPARQL-request on the resulting graphs. Already crawled documents
+are cached in memory and on disk.
+
+HTTP POST request parameters:
+
+  query: The SPARQL query.
+  graphs: A comma separated list of graph urls in <>:
+            <graph-url1>, <graph-url2>, ...
+  timeout: maximal number of seconds used to crawl the RDF documents.
+
+HTTP Response: application/sparql-results+json
+
+Build instructions:
+
+Configure the path to your settings file in SparqlCrawlServer/WebContent/WEB-INF/web.xml.
+Build by invoking ant. Minimum java version is 7.0. Minimum servlet version is 3.0.
+
+Deploy: Deploy the file SparqlCrawlServer.war in your servlet containter (e.g. tomcat 7).
+
+Settings file:
+
+The settings file is a groovy file, see example-settings.groovy.
+
+  cacheLifetimeOk: number of seconds to cache crawled RDF documents.
+  cacheLifetimeContentTooLong: number of seconds to cache 'content-too-long' crawl results.
+                               (see maxRdfXmlSize)
+  cacheLifetimeHttpError: number of seconds to cache HTTP error crawl results.
+  cacheLifetimeNetworkError: number of seconds to cache network error crawl results.
+  cacheLifetimeNotAllowedByRobots: number of seconds to cache 'disallowed' crawl results.
+  cacheLifetimeParseError: number of seconds to cache RDF parse error crawl results.
+  cacheLifetimeWrongContentType: number of seconds to cache wrong content type error crawl results.
+  
+  datasetCacheLifetimeComplete: number of seconds to cache completely crawled document lists in memory.
+  datasetCacheLifetimeIncomplete: number of seconds to cache incompletely crawled document lists in memory.
+  
+  logFilePath: path to the log file
+  crawlThreads: number of threads used for crawling.
+  crawlThreadStackSize: stack size for crawl threads
+  dnsThreads: number of threads for dns lookup
+  dnsThreadStackSize: stack size for dns lookup threads
+  dnsTimeout: DNS timeout
+  maxRdfXmlSize: maximum size of RDF documents
+  maxRobotsAge: maximum cache time of robots.txt files.
+  maxRobotsSize: maximum allowed size of a robots.txt file.
+  modelCachePath: path to disk-cache-folder
+  socketTimeout: socket timeout
+  unixOs: is the underlying os unix like? (true/false)
+  userAgent: user-agent header value for crawl requests
+

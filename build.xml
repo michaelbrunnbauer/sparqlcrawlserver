@@ -1,0 +1,38 @@
+<project name="SparqlCrawlServer" default="war" basedir=".">
+  <property name="proj-dir" location="SparqlCrawlServer"/>
+  <property name="src" location="${proj-dir}/src"/>
+  <property name="WebContent" location="${proj-dir}/WebContent"/>
+  <property name="build" location="SparqlCrawlServer/build"/>
+  <property name="war" location="SparqlCrawlServer.war"/>
+  <property name="web-inf" location="${build}/WEB-INF"/>
+
+  <target name="clean">
+    <delete dir="${build}"/>
+    <delete file="${war}"/>
+  </target>
+
+  <target name="compile">
+    <mkdir dir="${web-inf}/classes"/>
+    <javac srcdir="${src}" destdir="${web-inf}/classes" debug="true" debuglevel="lines,vars,source"
+        includeantruntime="false">
+      <classpath>
+        <fileset dir="lib">
+          <include name="**/*.jar"/>
+        </fileset>
+      </classpath>
+    </javac>
+  </target>
+
+  <target name="war" depends="compile">
+    <mkdir dir="${web-inf}/lib"/>
+    <copy todir="${web-inf}/lib">
+      <fileset dir="lib">
+        <include name="**/*.jar"/>
+        <exclude name="servlet-api.jar"/>
+      </fileset>
+    </copy>
+    <copy file="${WebContent}/WEB-INF/web.xml" todir="${web-inf}"/>
+    <jar jarfile="${war}" basedir="${build}"/>
+  </target>
+</project>
+
