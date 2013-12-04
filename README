@@ -12,6 +12,9 @@ crawled documents are cached in memory and on disk.
 
 The crawler supports RDF/XML, RDFa, N3 and Turtle.
 
+The context-path of the servlet is /sparqlcrawl (so, normally the
+endpoint URL is http://<your-server>/SparqlCrawlServer/sparqlcrawl).
+
 HTTP POST request parameters (UTF-8 encoded):
 
   query: The SPARQL query.
