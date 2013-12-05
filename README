@@ -6,7 +6,7 @@ Author: netEstate GmbH, http://www.netestate.de/, brunni@netestate.de
 License: Apache License version 2 <http://www.apache.org/licenses/>
 
 Sparql Crawl Server is a Java Web application that crawls a list of URLs 
-containing RDF and executes a SPARQL-request on the resulting graphs.  
+containing RDF and executes a SPARQL query on the resulting graphs.  
 Every document gets its own named graph with the final document URL as 
 graph name. Already crawled documents are cached in memory and on disk.
 
@@ -22,7 +22,7 @@ HTTP POST request parameters (UTF-8 encoded):
 HTTP Response: application/sparql-results+json
 
 If the timeout is reached, the SPARQL query will be executed with the current
-results. The unfinished HTTP requests are added to the cache when finished.
+results. RDF from unfinished HTTP requests is added to the cache when finished.
 
 Build instructions:
 
@@ -31,11 +31,9 @@ Configure the path to your settings file in
  SparqlCrawlServer/WebContent/WEB-INF/web.xml.
 
 Build by invoking ant.
-Minimum java version is 7.0.
-Minimum servlet version is 3.0.
+Minimum Java version is 7.0, minimum Servlet version is 3.0.
 
-Deploy: Deploy the file SparqlCrawlServer.war in your servlet container
-(e.g. tomcat 7).
+Deploy the file SparqlCrawlServer.war in your Servlet container (e.g. Tomcat 7).
 
 The context-path of the servlet is /sparqlcrawl (so, normally the
 endpoint URL is http://<your-server>/SparqlCrawlServer/sparqlcrawl).
