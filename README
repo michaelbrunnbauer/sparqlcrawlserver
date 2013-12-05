@@ -5,25 +5,24 @@ Version: 1.0
 Author: netEstate GmbH, http://www.netestate.de/, brunni@netestate.de
 License: Apache License version 2 <http://www.apache.org/licenses/>
 
-SparqlCrawlServer is a java web application that crawls a list of RDF-documents
-and executes a SPARQL-request on the resulting graphs. Every document gets 
-its own named graph with the final document URL as graph name. Already 
-crawled documents are cached in memory and on disk.
+Sparql Crawl Server is a Java Web application that crawls a list of URLs 
+containing RDF and executes a SPARQL-request on the resulting graphs.  
+Every document gets its own named graph with the final document URL as 
+graph name. Already crawled documents are cached in memory and on disk.
 
 The crawler supports RDF/XML, RDFa, N3 and Turtle and will open a maximum 
-of one HTTP connection per server IP. It respects the /robots.txt.
-
-The context-path of the servlet is /sparqlcrawl (so, normally the
-endpoint URL is http://<your-server>/SparqlCrawlServer/sparqlcrawl).
+of one HTTP connection per server IP. It respects the Robot Exclusion Standard.
 
 HTTP POST request parameters (UTF-8 encoded):
 
   query: The SPARQL query.
-  graphs: A comma separated list of graph urls in <>:
-            <graph-url1>, <graph-url2>, ...
-  timeout: maximal number of seconds used to crawl the RDF documents.
+  graphs: A comma separated list of URLs in <>: <url1>,<url2>,...
+  timeout: number of seconds to wait for the RDF documents.
 
 HTTP Response: application/sparql-results+json
+
+If the timeout is reached, the SPARQL query will be executed with the current
+results. The unfinished HTTP requests are added to the cache when finished.
 
 Build instructions:
 
@@ -37,6 +36,9 @@ Minimum servlet version is 3.0.
 
 Deploy: Deploy the file SparqlCrawlServer.war in your servlet container
 (e.g. tomcat 7).
+
+The context-path of the servlet is /sparqlcrawl (so, normally the
+endpoint URL is http://<your-server>/SparqlCrawlServer/sparqlcrawl).
 
 Settings file:
 
