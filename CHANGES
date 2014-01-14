@@ -1,0 +1,11 @@
+
+version 1.1
+-----------
+
+-For HTML content types: Use charset from HTTP header to optionally decode 
+ into unicode before calling model.read()
+
+version 1.0
+-----------
+
+-initial version

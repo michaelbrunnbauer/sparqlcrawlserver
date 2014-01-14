@@ -5,8 +5,10 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.URI;
+import java.nio.charset.Charset;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -46,6 +48,29 @@ public final class DownloadTask implements Callable<DownloadResult> {
 
     private static boolean isIllegalUri(final Node node) {
         return node.isURI() && IRIResolver.checkIRI(node.getURI());
+    }
+
+    private static void readHtml(final Model model, final HttpResult httpResult, final String url, final String lang) {
+        final String ct = httpResult.getContentType();
+        final int p = ct.indexOf(';');
+        Charset charset = null;
+        if (p >= 0) {
+            final String cs = ct.substring(p + 1).trim().toLowerCase();
+            final String prefix = "charset=";
+            if (cs.startsWith(prefix)) {
+                try {
+                    charset = Charset.forName(cs.substring(prefix.length()).trim());
+                } catch (final IllegalArgumentException ex) {
+                    // ignore
+                }
+            }
+        }
+        final byte[] body = httpResult.getBody();
+        final InputStream in = new ByteArrayInputStream(body);
+        if (charset == null)
+            model.read(in, url, lang);
+        else
+            model.read(new InputStreamReader(in, charset), url, lang); 
     }
 
     private static void readModel(final Model model, final HttpResult httpResult, final String url) {
@@ -273,7 +298,7 @@ public final class DownloadTask implements Callable<DownloadResult> {
             else
                 lang = "HTML";
             try {
-                model.read(new ByteArrayInputStream(httpResult.getBody()), url, lang);
+                readHtml(model, httpResult, url, lang);
             } catch (final Exception ex) {
                 getLogger().info("Parse error for {}", url, ex);
                 return makeResult(ResultType.PARSE_ERROR);
