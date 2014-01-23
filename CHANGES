@@ -1,3 +1,7 @@
+version 1.2
+-----------
+
+-Patched httpclient lib for better behavior with non-HTTP-compliant servers
 
 version 1.1
 -----------

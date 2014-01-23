@@ -11,6 +11,9 @@ import javax.servlet.ServletContext;
 
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.config.ConnectionConfig;
+import org.apache.http.config.MessageConstraints;
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
@@ -27,6 +30,9 @@ import de.netestate.sparqlcrawlserver.util.Proc0;
 import de.netestate.sparqlcrawlserver.util.ResourcesCloser;
 
 public final class Setup implements AutoCloseable {
+    private static final int MAX_HTTP_LINE_LENGTH = 16384;
+    private static final int MAX_HTTP_HEADER_COUNT = 128;
+
     private static final String SERVLET_CONTEXT_SETUP_NAME = "Setup";
 
     public static Setup getInstance(final ServletContext servletContext) {
@@ -69,10 +75,25 @@ public final class Setup implements AutoCloseable {
         final int maxConnections = Settings.getCrawlThreads();
         cm.setMaxTotal(maxConnections);
         cm.setDefaultMaxPerRoute(maxConnections);
+        final MessageConstraints messageConstraints = MessageConstraints.custom()
+                .setMaxHeaderCount(MAX_HTTP_HEADER_COUNT)
+                .setMaxLineLength(MAX_HTTP_LINE_LENGTH)
+                .build();
+        final ConnectionConfig connectionConfig = ConnectionConfig.custom()
+                .setMessageConstraints(messageConstraints)
+                .build();
+        cm.setDefaultConnectionConfig(connectionConfig);
+        final RequestConfig requestConfig = RequestConfig.custom()
+                .setSocketTimeout(Settings.getSocketTimeoutMillis())
+                .setConnectTimeout(Settings.getSocketTimeoutMillis())
+                .build();
         return HttpClients.custom()
                 .setConnectionManager(cm)
+                .disableContentCompression()
                 .disableRedirectHandling()
                 .disableCookieManagement()
+                .setDefaultRequestConfig(requestConfig)
+                .setUserAgent(Settings.getUserAgent())
                 .build();
     }
 

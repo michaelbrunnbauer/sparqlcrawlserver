@@ -10,7 +10,6 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,13 +32,7 @@ public final class Http {
     public static HttpResult fetch(final Setup setup, final String url, final int maxSize,
             final String[] contentTypes) {
         final HttpClient client = setup.getHttpClient();
-        final RequestConfig requestConfig = RequestConfig.custom()
-                .setSocketTimeout(Settings.getSocketTimeoutMillis())
-                .setConnectTimeout(Settings.getSocketTimeoutMillis())
-                .build();
         final HttpGet method = new HttpGet(url);
-        method.setConfig(requestConfig);
-        method.setHeader("User-Agent", Settings.getUserAgent());
         method.setHeader("Accept", Settings.getAcceptHeader());
         try {
             return fetch2(url, maxSize, contentTypes, client, method);
