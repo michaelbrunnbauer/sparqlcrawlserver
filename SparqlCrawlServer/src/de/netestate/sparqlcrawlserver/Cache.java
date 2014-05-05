@@ -9,6 +9,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -76,7 +77,7 @@ public final class Cache<K, V> {
                 gzout.flush();
                 bout.flush();
             }
-            Files.move(tempPath, keyPath);
+            Files.move(tempPath, keyPath, StandardCopyOption.REPLACE_EXISTING);
         }
     }
 }
