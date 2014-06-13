@@ -16,6 +16,7 @@ import org.apache.http.config.ConnectionConfig;
 import org.apache.http.config.MessageConstraints;
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
+import org.apache.http.config.SocketConfig;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.socket.PlainConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
@@ -71,10 +72,14 @@ public final class Setup implements AutoCloseable {
                 .register("http", plainsf)
                 .register("https", sslsf)
                 .build();
+        final SocketConfig socketConfig = SocketConfig.custom()
+                .setSoTimeout(Settings.getSocketTimeoutMillis())
+                .build();
         final PoolingHttpClientConnectionManager cm = new PoolingHttpClientConnectionManager(socketFactoryRegistry);
         final int maxConnections = Settings.getCrawlThreads();
         cm.setMaxTotal(maxConnections);
         cm.setDefaultMaxPerRoute(maxConnections);
+        cm.setDefaultSocketConfig(socketConfig);
         final MessageConstraints messageConstraints = MessageConstraints.custom()
                 .setMaxHeaderCount(MAX_HTTP_HEADER_COUNT)
                 .setMaxLineLength(MAX_HTTP_LINE_LENGTH)

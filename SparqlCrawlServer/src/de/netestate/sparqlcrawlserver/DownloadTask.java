@@ -80,6 +80,8 @@ public final class DownloadTask implements Callable<DownloadResult> {
             model.read(inputStream, url, "TURTLE");
         else if (Http.contentTypeMatches(contentType, "text/n3"))
             model.read(inputStream, url, "N3");
+        else if (Http.contentTypeMatches(contentType, "application/json"))
+            model.read(inputStream, url, "JSON-LD");
         else {
             model.read(inputStream, url);
         }
@@ -291,9 +293,10 @@ public final class DownloadTask implements Callable<DownloadResult> {
             return makeResult(ResultType.HTTP_ERROR, statusCode);
         }
         final Model model = ModelFactory.createDefaultModel();
-        if (Http.contentTypeMatches(httpResult.getContentType(), "application/xhtml+xml", "text/html")) {
+        final String contentType = httpResult.getContentType();
+        if (Http.contentTypeMatches(contentType, "application/xhtml+xml", "text/html")) {
             final String lang;
-            if ("application/xhtml+xml".equals(httpResult.getContentType()))
+            if ("application/xhtml+xml".equals(contentType))
                 lang = "XHTML";
             else
                 lang = "HTML";

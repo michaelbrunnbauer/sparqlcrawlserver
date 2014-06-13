@@ -1,3 +1,9 @@
+
+version 1.4
+-----------
+
+-Upgrade to Apache Jena 2.11.2, support for JSON-LD
+
 version 1.3
 -----------
 
