@@ -1,6 +1,13 @@
-allowedContentTypes = ['application/rdf+xml', 'text/turtle', 'text/n3',
-                       'application/xml', 'text/xml', 'application/json',
-                       'application/xhtml+xml', 'text/html', 'text/plain']
+allowedContentTypes = ['application/rdf+xml',
+                       'text/turtle',
+                       'text/n3',
+                       'application/ld+json',
+                       'application/xml',
+                       'text/xml',
+                       'application/json',
+                       'application/xhtml+xml',
+                       'text/html',
+                       'text/plain']
 cacheLifetimeContentTooLong = 60 * 60 * 24 // 24h
 cacheLifetimeHttpError = 60 * 60 // 1h
 cacheLifetimeNetworkError = 60 * 60 // 1h

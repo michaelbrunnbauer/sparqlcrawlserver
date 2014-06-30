@@ -82,6 +82,8 @@ public final class DownloadTask implements Callable<DownloadResult> {
             model.read(inputStream, url, "N3");
         else if (Http.contentTypeMatches(contentType, "application/json"))
             model.read(inputStream, url, "JSON-LD");
+        else if (Http.contentTypeMatches(contentType, "application/ld+json"))
+            model.read(inputStream, url, "JSON-LD");
         else {
             model.read(inputStream, url);
         }
