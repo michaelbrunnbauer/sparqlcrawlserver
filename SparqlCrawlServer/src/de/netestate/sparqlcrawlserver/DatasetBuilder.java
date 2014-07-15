@@ -38,7 +38,7 @@ public final class DatasetBuilder {
     private final long requestId;
     private final Setup setup;
     private Map<String, InetAddress> urlsWithIp;
-    private List<String> urlsToCrawl;
+    private List<IriUrl> urlsToCrawl;
 
     public DatasetBuilder(final long requestId, final Setup setup) {
         this.requestId = requestId;
@@ -48,7 +48,7 @@ public final class DatasetBuilder {
         modelCache = setup.getModelCache();
     }
 
-    public Dataset build(final List<String> urls, final long timeout) throws Exception {
+    public Dataset build(final List<IriUrl> urls, final long timeout) throws Exception {
         final long startTime = System.nanoTime();
         complete = true;
         dataset = DatasetFactory.createMemFixed();
@@ -68,12 +68,13 @@ public final class DatasetBuilder {
         return complete;
     }
 
-    private void addCachedModels(final List<String> urls) throws Exception {
+    private void addCachedModels(final List<IriUrl> urls) throws Exception {
         urlsToCrawl = new ObjectArrayList<>();
-        for (final String url: urls) {
+        for (final IriUrl iriUrl: urls) {
+            final String url = iriUrl.getUrl();
             final ModelCacheEntry cacheEntry = modelCache.get(url);
             if (cacheEntry == null)
-                urlsToCrawl.add(url);
+                urlsToCrawl.add(iriUrl);
             else if (!cacheEntry.isError()) {
                 final Model model = ModelFactory.createDefaultModel();
                 try {
@@ -129,8 +130,8 @@ public final class DatasetBuilder {
     private void lookupIps() throws Exception {
         final CompletionService<UrlAndIp> completionService = new ExecutorCompletionService<>(dnsExecutor);
         final List<DnsLookupTask> tasks = new ReferenceArrayList<>(urlsToCrawl.size());
-        for (final String url: urlsToCrawl) {
-            final DnsLookupTask task = new DnsLookupTask(url);
+        for (final IriUrl iriUrl: urlsToCrawl) {
+            final DnsLookupTask task = new DnsLookupTask(iriUrl.getUrl());
             completionService.submit(task);
             tasks.add(task);
         }
@@ -163,11 +164,13 @@ public final class DatasetBuilder {
         crawlTasks = new ReferenceArrayList<>();
         // group into tasks by ip
         final Map<InetAddress, List<DownloadTask>> tasksWithIp = new Object2ReferenceOpenHashMap<>();
-        for (final String url: urlsToCrawl) {
+        for (final IriUrl iriUrl: urlsToCrawl) {
+            final String iri = iriUrl.getIri();
+            final String url = iriUrl.getUrl();
             final InetAddress ip = urlsWithIp.get(url);
             if (ip == null) {
                 // ip is unresolvable or lookup timed out
-                final List<DownloadTask> downloadTasks = Arrays.asList(new DownloadTask(requestId, setup, url));
+                final List<DownloadTask> downloadTasks = Arrays.asList(new DownloadTask(requestId, setup, iri, url));
                 submitCrawlTask(downloadTasks);
             } else {
                 List<DownloadTask> downloadTasks = tasksWithIp.get(ip);
@@ -175,7 +178,7 @@ public final class DatasetBuilder {
                     downloadTasks = new ReferenceArrayList<>();
                     tasksWithIp.put(ip, downloadTasks);
                 }
-                downloadTasks.add(new DownloadTask(requestId, setup, url, ip));
+                downloadTasks.add(new DownloadTask(requestId, setup, iri, url, ip));
             }
         }
         for (final List<DownloadTask> downloadTasks: tasksWithIp.values())

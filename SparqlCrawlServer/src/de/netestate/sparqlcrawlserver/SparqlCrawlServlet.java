@@ -62,14 +62,14 @@ final class SparqlCrawlServletRequest {
         }
     }
 
-    private static void logIllegalUrl(final long requestId, final Setup setup, final String url) throws Exception {
-        setup.getLogFile().log(requestId, "Illegal URL", url);
+    private static void logIllegalUrl(final long requestId, final Setup setup, final String iri) throws Exception {
+        setup.getLogFile().log(requestId, "Illegal URL", iri);
     }
 
     private final HttpServletRequest request;
     private final HttpServletResponse response;
 
-    private List<String> urls;
+    private List<IriUrl> urls;
     private Set<String> urlSet;
 
     SparqlCrawlServletRequest(final HttpServletRequest request, final HttpServletResponse response) {
@@ -117,7 +117,7 @@ final class SparqlCrawlServletRequest {
 
     private void getUrls(final long requestId, final Setup setup, final List<String> iris) throws Exception {
         urls = new ObjectArrayList<>(iris.size());
-        urlSet = new ObjectOpenHashSet<>(urls);
+        urlSet = new ObjectOpenHashSet<>(iris.size());
         final Iterator<String> irisIt = iris.iterator();
         while (irisIt.hasNext()) {
             final String iri = irisIt.next();
@@ -126,7 +126,7 @@ final class SparqlCrawlServletRequest {
                 logIllegalUrl(requestId, setup, iri);
             else {
                 if (!urlSet.contains(url)) {
-                    urls.add(url);
+                    urls.add(new IriUrl(iri, url));
                     urlSet.add(url);
                 }
             }

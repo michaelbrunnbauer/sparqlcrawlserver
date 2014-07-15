@@ -1,3 +1,9 @@
+version 1.5
+-----------
+
+-Log IRI instead of URI in log file
+-Update to Jackson 2.4.1
+-Catch stack overflow from Jackson JSON parser
 
 version 1.4
 -----------

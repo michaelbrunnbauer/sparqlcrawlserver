@@ -80,11 +80,14 @@ public final class DownloadTask implements Callable<DownloadResult> {
             model.read(inputStream, url, "TURTLE");
         else if (Http.contentTypeMatches(contentType, "text/n3"))
             model.read(inputStream, url, "N3");
-        else if (Http.contentTypeMatches(contentType, "application/json"))
-            model.read(inputStream, url, "JSON-LD");
-        else if (Http.contentTypeMatches(contentType, "application/ld+json"))
-            model.read(inputStream, url, "JSON-LD");
-        else {
+        else if (Http.contentTypeMatches(contentType, "application/json")
+                || Http.contentTypeMatches(contentType, "application/ld+json")) {
+            try {
+                model.read(inputStream, url, "JSON-LD");
+            } catch (final StackOverflowError ex) {
+                throw new RuntimeException("StackOverflowError");
+            }
+        } else {
             model.read(inputStream, url);
         }
     }
@@ -138,21 +141,25 @@ public final class DownloadTask implements Callable<DownloadResult> {
     private volatile boolean cancelled = false;
     private final long requestId;
     private final Setup setup;
+    private final String iri;
     private final String url;
     private final boolean ipIsKnown;
     private final InetAddress knownIp;
 
-    public DownloadTask(final long requestId, final Setup setup, final String url) {
+    public DownloadTask(final long requestId, final Setup setup, final String iri, final String url) {
         this.requestId = requestId;
         this.setup = setup;
+        this.iri = iri;
         this.url = url;
         ipIsKnown = false;
         knownIp = null;
     }
 
-    public DownloadTask(final long requestId, final Setup setup, final String url, final InetAddress ip) {
+    public DownloadTask(final long requestId, final Setup setup, final String iri, final String url,
+            final InetAddress ip) {
         this.requestId = requestId;
         this.setup = setup;
+        this.iri = iri;
         this.url = url;
         ipIsKnown = true;
         knownIp = ip;
@@ -217,17 +224,17 @@ public final class DownloadTask implements Callable<DownloadResult> {
         case HTTP_ERROR:
             lifetimeMillis = Settings.getCacheLifetimeHttpErrorMillis();
             entry = new ModelCacheEntry(true);
-            logFile.log(requestId, "HTTP " + result.getStatusCode(), url);
+            logFile.log(requestId, "HTTP " + result.getStatusCode(), iri);
             break;
         case NETWORK_ERROR:
             lifetimeMillis = Settings.getCacheLifetimeNetworkErrorMillis();
             entry = new ModelCacheEntry(true);
-            logFile.log(requestId, "Network Error", url);
+            logFile.log(requestId, "Network Error", iri);
             break;
         case PARSE_ERROR:
             lifetimeMillis = Settings.getCacheLifetimeParseErrorMillis();
             entry = new ModelCacheEntry(true);
-            logFile.log(requestId, "Parse Error", url);
+            logFile.log(requestId, "Parse Error", iri);
             break;
         case RESULT: {
             final byte[] data = serialize(result.getModel());
@@ -238,23 +245,23 @@ public final class DownloadTask implements Callable<DownloadResult> {
                 lifetimeMillis = Settings.getCacheLifetimeOkMillis();
                 entry = new ModelCacheEntry(data, result.getActualUrl());
             }
-            logFile.log(requestId, "OK", url);
+            logFile.log(requestId, "OK", iri);
             break;
         }
         case ROBOTS:
             lifetimeMillis = Settings.getCacheLifetimeNotAllowedByRobotsMillis();
             entry = new ModelCacheEntry(true);
-            logFile.log(requestId, "Robots", url);
+            logFile.log(requestId, "Robots", iri);
             break;
         case WRONG_CONTENT_TYPE:
             lifetimeMillis = Settings.getCacheLifetimeWrongContentTypeMillis();
             entry = new ModelCacheEntry(true);
-            logFile.log(requestId, "Wrong Content-Type", url);
+            logFile.log(requestId, "Wrong Content-Type", iri);
             break;
         case CONTENT_TOO_LONG:
             lifetimeMillis = Settings.getCacheLifetimeContentTooLongMillis();
             entry = new ModelCacheEntry(true);
-            logFile.log(requestId, "Content Too Long", url);
+            logFile.log(requestId, "Content Too Long", iri);
             break;
         default:
             throw new AssertionError(type);
