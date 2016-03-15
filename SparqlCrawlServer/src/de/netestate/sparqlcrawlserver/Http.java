@@ -67,7 +67,7 @@ public final class Http {
                     location = resolveUrl(url, locationHeader.getValue());
                 final HttpEntity entity = response.getEntity();
                 final String contentType = getContentType(entity);
-                final long contentLength = entity.getContentLength();
+                final long contentLength = entity == null ? 0L : entity.getContentLength();
                 if (contentLength > maxSize)
                     return new HttpResult(ResultType.CONTENT_TOO_LONG);
                 if (contentTypes != null && !contentTypeMatches(contentType, contentTypes))
@@ -81,6 +81,8 @@ public final class Http {
     }
 
     private static byte[] getBodyBytes(final HttpEntity entity, final int maxSize) throws IOException {
+        if (entity == null)
+            return new byte[0];
         final InputStream in = entity.getContent();
         final byte[] buffer = new byte[1024];
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -99,6 +101,8 @@ public final class Http {
     }
 
     private static String getContentType(final HttpEntity entity) {
+        if (entity == null)
+            return null;
         final Header ct = entity.getContentType();
         if (ct == null)
             return null;
